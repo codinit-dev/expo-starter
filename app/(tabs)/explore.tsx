@@ -1,112 +1,243 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, Switch, View } from 'react-native';
 
-import { Collapsible } from '@/components/ui/collapsible';
-import { ExternalLink } from '@/components/external-link';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts } from '@/constants/theme';
+import { useThemeColor } from '@/hooks/use-theme-color';
 
-export default function TabTwoScreen() {
+interface ProfileItem {
+  id: string;
+  title: string;
+  icon: string;
+  action: string;
+  value?: boolean;
+  subtitle?: string;
+}
+
+export default function ProfileScreen() {
+  const backgroundColor = useThemeColor({}, 'background');
+  const cardBackgroundColor = useThemeColor({ light: '#FFFFFF', dark: '#1C1C1E' }, 'background');
+  const secondaryBackgroundColor = useThemeColor({ light: '#F2F2F7', dark: '#2C2C2E' }, 'background');
+  const textColor = useThemeColor({}, 'text');
+  const tintColor = useThemeColor({}, 'tint');
+  const iconColor = useThemeColor({}, 'icon');
+
+  const profileSections = [
+    {
+      title: 'Account',
+      items: [
+        { id: '1', title: 'Personal Information', icon: 'person.fill', action: 'chevron.right' },
+        { id: '2', title: 'Security Settings', icon: 'lock.fill', action: 'chevron.right' },
+        { id: '3', title: 'Privacy', icon: 'hand.raised.fill', action: 'chevron.right' },
+      ],
+    },
+    {
+      title: 'Preferences',
+      items: [
+        { id: '4', title: 'Notifications', icon: 'bell.fill', action: 'toggle', value: true },
+        { id: '5', title: 'Dark Mode', icon: 'moon.fill', action: 'toggle', value: false },
+        { id: '6', title: 'Language', icon: 'globe', action: 'chevron.right', subtitle: 'English' },
+      ],
+    },
+    {
+      title: 'Support',
+      items: [
+        { id: '7', title: 'Help Center', icon: 'questionmark.circle.fill', action: 'chevron.right' },
+        { id: '8', title: 'Contact Us', icon: 'message.fill', action: 'chevron.right' },
+        { id: '9', title: 'About', icon: 'info.circle.fill', action: 'chevron.right' },
+      ],
+    },
+  ];
+
+  const renderProfileItem = (item: ProfileItem, iconColor: string, textColor: string, secondaryBackgroundColor: string) => (
+    <TouchableOpacity key={item.id} style={styles.profileItem}>
+      <View style={styles.itemLeft}>
+        <View style={[styles.itemIcon, { backgroundColor: secondaryBackgroundColor }]}>
+          <IconSymbol name="chevron.right" size={20} color={tintColor} />
+        </View>
+        <View style={styles.itemContent}>
+          <ThemedText style={styles.itemTitle}>{item.title}</ThemedText>
+          {item.subtitle && (
+            <ThemedText style={[styles.itemSubtitle, { color: textColor, opacity: 0.6 }]}>{item.subtitle}</ThemedText>
+          )}
+        </View>
+      </View>
+      {item.action === 'toggle' ? (
+        <Switch value={item.value} onValueChange={() => {}} />
+      ) : (
+        <IconSymbol name={item.action} size={16} color={iconColor} />
+      )}
+    </TouchableOpacity>
+  );
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText
-          type="title"
-          style={{
-            fontFamily: Fonts.rounded,
-          }}>
-          Explore
-        </ThemedText>
+    <ScrollView style={[styles.container, { backgroundColor }]} showsVerticalScrollIndicator={false}>
+      {/* Profile Header */}
+      <ThemedView style={[styles.header, { backgroundColor: cardBackgroundColor }]}>
+        <View style={styles.profileInfo}>
+          <View style={styles.avatarContainer}>
+            <IconSymbol name="person.circle.fill" size={80} color={tintColor} />
+            <TouchableOpacity style={[styles.editButton, { backgroundColor: tintColor }]}>
+              <IconSymbol name="pencil.circle.fill" size={24} color={cardBackgroundColor} />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.userInfo}>
+            <ThemedText type="title" style={styles.userName}>John Doe</ThemedText>
+            <ThemedText style={[styles.userEmail, { color: textColor, opacity: 0.7 }]}>john.doe@example.com</ThemedText>
+            <ThemedText style={[styles.userStatus, { color: tintColor }]}>Premium Member</ThemedText>
+          </View>
+        </View>
       </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image
-          source={require('@/assets/images/react-logo.png')}
-          style={{ width: 100, height: 100, alignSelf: 'center' }}
-        />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful{' '}
-          <ThemedText type="defaultSemiBold" style={{ fontFamily: Fonts.mono }}>
-            react-native-reanimated
-          </ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+
+      {/* Profile Sections */}
+      {profileSections.map((section) => (
+        <ThemedView key={section.title} style={styles.section}>
+          <ThemedText type="subtitle" style={[styles.sectionTitle, { color: textColor, opacity: 0.7 }]}>
+            {section.title}
+          </ThemedText>
+          <View style={[styles.sectionContent, { backgroundColor: cardBackgroundColor }]}>
+            {section.items.map((item) => renderProfileItem(item, iconColor, textColor, secondaryBackgroundColor))}
+          </View>
+        </ThemedView>
+      ))}
+
+      {/* Sign Out Button */}
+      <TouchableOpacity style={[styles.signOutButton, { backgroundColor: cardBackgroundColor }]}>
+        <IconSymbol name="arrow.right.square" size={20} color="#FF3B30" />
+        <ThemedText style={styles.signOutText}>Sign Out</ThemedText>
+      </TouchableOpacity>
+
+      {/* App Version */}
+      <View style={styles.versionContainer}>
+        <ThemedText style={styles.versionText}>Version 1.0.0</ThemedText>
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  container: {
+    flex: 1,
   },
-  titleContainer: {
+  header: {
+    paddingTop: 60,
+    paddingBottom: 30,
+    alignItems: 'center',
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  profileInfo: {
+    alignItems: 'center',
+  },
+  avatarContainer: {
+    position: 'relative',
+    marginBottom: 16,
+  },
+  editButton: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    borderRadius: 12,
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  userInfo: {
+    alignItems: 'center',
+  },
+  userName: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  userEmail: {
+    fontSize: 16,
+    marginBottom: 4,
+  },
+  userStatus: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  section: {
+    marginTop: 24,
+    paddingHorizontal: 20,
+  },
+  sectionTitle: {
+    marginBottom: 12,
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  sectionContent: {
+    borderRadius: 12,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  profileItem: {
     flexDirection: 'row',
-    gap: 8,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+  },
+  itemLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  itemIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  itemContent: {
+    flex: 1,
+  },
+  itemTitle: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  itemSubtitle: {
+    fontSize: 14,
+    marginTop: 2,
+  },
+  signOutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    margin: 20,
+    marginBottom: 10,
+    padding: 16,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  signOutText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#FF3B30',
+    marginLeft: 8,
+  },
+  versionContainer: {
+    alignItems: 'center',
+    paddingBottom: 40,
+  },
+  versionText: {
+    fontSize: 14,
+    opacity: 0.5,
   },
 });
